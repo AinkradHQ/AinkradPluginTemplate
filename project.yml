@@ -10,6 +10,7 @@ settings:
     CODE_SIGN_IDENTITY: "-"
     CODE_SIGNING_REQUIRED: NO
     CODE_SIGNING_ALLOWED: NO
+    EAGER_LINKING: NO
 packages:
   AinkradAppKit:
     url: https://github.com/AinkradHQ/AinkradAppKit
@@ -17,14 +18,22 @@ packages:
     # copy of the SDK, so a plugin built against a NEWER revision links symbols
     # that copy does not define and dies at `Bundle.load()`. This matches the
     # host's pin exactly: the settings-catalog merge, which is what
-    # `settingsCatalog(host:)` in Sources/Plugin/PluginApp.swift needs.
+    # `settingsCatalog(host:)` in Sources/TemplateFeature/PluginApp.swift needs.
     revision: 3618e86aba65d9f07e5ad686f3d6822657c76ab3
 targets:
+  TemplateFeature:
+    type: library.static
+    platform: macOS
+    sources: [Sources/TemplateFeature]
+    dependencies:
+      - package: AinkradAppKit
+        embed: false
   TemplatePlugin:
     type: bundle
     platform: macOS
-    sources: [Sources/Plugin]
+    sources: [Sources/TemplatePlugin]
     dependencies:
+      - target: TemplateFeature
       # AinkradAppKit is the ONLY shared dependency: dynamic + NOT embedded, so
       # the host's copy is used at runtime and protocol casts succeed. Any other
       # runtime dependency must be statically linked (see README).
@@ -34,9 +43,10 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.plugin.myplugin
         GENERATE_INFOPLIST_FILE: NO
-        INFOPLIST_FILE: Sources/Plugin/Info.plist
+        INFOPLIST_FILE: Sources/TemplatePlugin/Info.plist
         MACH_O_TYPE: mh_bundle
         LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+        OTHER_LDFLAGS: ["-lTemplateFeature"]
     postBuildScripts:
       # Generate AinkradAPIVersion from the linked SDK rather than
       # trusting the hand-typed value in Info.plist — see the script.
@@ -50,6 +60,14 @@ targets:
         # No outputs, so keep it running every build: the linked SDK revision
         # can change generation without any source file changing.
         basedOnDependencyAnalysis: false
+  TemplateFeatureTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [Tests/TemplateFeatureTests]
+    dependencies:
+      - target: TemplateFeature
+      - package: AinkradAppKit
 schemes:
   TemplatePlugin:
-    build: { targets: { TemplatePlugin: all } }
+    build: { targets: { TemplatePlugin: all, TemplateFeatureTests: [test] } }
+    test: { config: Debug, targets: [TemplateFeatureTests] }
