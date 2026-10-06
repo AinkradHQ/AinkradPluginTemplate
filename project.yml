@@ -36,7 +36,8 @@ targets:
       - target: TemplateFeature
       # AinkradAppKit is the ONLY shared dependency: dynamic + NOT embedded, so
       # the host's copy is used at runtime and protocol casts succeed. Any other
-      # runtime dependency must be statically linked (see README).
+      # runtime dependency must be statically linked (see the template guide,
+      # Docs/Reference/ainkradplugintemplate-readme.md in the Ainkrad workspace).
       - package: AinkradAppKit
         embed: false
     settings:
