@@ -18,19 +18,31 @@ final class TemplateSettings {
 
     private let documents: PluginDocumentStore
     private var document: SettingsDocument
+    /// False only when unreadable settings could not be set aside — then no
+    /// save may overwrite the user's only copy (see `loadDocument`).
+    private let canSave: Bool
 
     init(documents: PluginDocumentStore) {
         self.documents = documents
-        self.document =
-            documents.data(forKey: Self.key)
-            .flatMap { try? JSONDecoder().decode(SettingsDocument.self, from: $0) } ?? SettingsDocument()
+        let loaded = loadDocument(SettingsDocument.self, key: Self.key, from: documents, app: MyApp.id)
+        self.document = loaded.value ?? SettingsDocument()
+        self.canSave = loaded.canSave
     }
 
     var showGreeting: Bool {
         get { document.showGreeting }
         set {
             document.showGreeting = newValue
-            documents.setData(try? JSONEncoder().encode(document), forKey: Self.key)
+            save()
+        }
+    }
+
+    private func save() {
+        guard canSave else { return }
+        do {
+            documents.setData(try JSONEncoder().encode(document), forKey: Self.key)
+        } catch {
+            AinkradLog.logger(app: MyApp.id, area: "persistence").error("settings were not saved: \(error)")
         }
     }
 
