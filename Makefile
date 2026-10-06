@@ -13,7 +13,13 @@ sideload: build
 	mkdir -p "$(DEV_PLUGINS)"
 	rm -rf "$(DEV_PLUGINS)/TemplatePlugin.bundle"
 	cp -R build/Build/Products/Debug/TemplatePlugin.bundle "$(DEV_PLUGINS)/TemplatePlugin.bundle"
-release: ; ./scripts/release.sh $(V)
+# Publishing goes through `ainkrad publish` and nowhere else: it validates the
+# bundle as the store does, signs it ($SIGN_IDENTITY, or --sign-identity in
+# PUBLISH_FLAGS), creates the GitHub Release and lists it in AinkradCatalog.
+#   SIGN_IDENTITY="Developer ID Application: ..." make release V=v1.0.0
+#   make release V=v1.0.0 PUBLISH_FLAGS="--dry-run --sign-identity -"   # plan only
+AINKRAD ?= ainkrad
+release: releasebuild ; $(AINKRAD) publish build/Build/Products/Release/TemplatePlugin.bundle $(V) $(PUBLISH_FLAGS)
 
 .PHONY: generate build test releasebuild sideload release
 
