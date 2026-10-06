@@ -9,16 +9,11 @@ public struct MyApp: AinkradApp {
     public static let icon = "puzzlepiece.extension"
 
     public static func makeRootView(host: HostServices) -> AnyView {
-        AnyView(
-            Text("Hello from My Plugin 👋")
-                .foregroundStyle(host.theme.tokens.accentPrimary)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(host.theme.tokens.background)
-        )
+        AnyView(RootView(settings: TemplateSettings.shared(host: host), theme: host.theme))
     }
 
     public static func makeSettingsView(host: HostServices) -> AnyView {
-        AnyView(Text("My Plugin settings"))
+        AnyView(AinkradCaption("Your own settings view goes here."))
     }
 
     /// Worked example of the additive settings contract: declare the fields
