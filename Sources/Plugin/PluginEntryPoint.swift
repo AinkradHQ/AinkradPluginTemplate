@@ -1,5 +1,5 @@
-import Foundation
 import AinkradAppKit
+import Foundation
 
 /// The bundle's principal class (matches `NSPrincipalClass` in Info.plist).
 @objc(MyPluginEntryPoint)

@@ -1,5 +1,5 @@
-import SwiftUI
 import AinkradAppKit
+import SwiftUI
 
 /// Your app. Rename `MyApp`, the id, name, and icon. Read theme via
 /// `host.theme.tokens` and persist via `host.documents` — never host internals.
@@ -35,30 +35,33 @@ struct MyApp: AinkradApp {
             path: root, title: displayName, icon: icon,
             group: .installedApps, order: 0,
             groups: [
-                SettingsGroup(path: general, title: "General", fields: [
-                    // A real, declared field: shows up in search and gets
-                    // the shared toggle UI for free.
-                    SettingsField(
-                        path: general.appending("greeting"),
-                        label: "Show greeting",
-                        help: "Show the \"Hello from My Plugin\" banner.",
-                        keywords: ["greeting", "hello", "banner"],
-                        kind: .toggle(Binding(
-                            get: { showGreeting(host) },
-                            set: { setShowGreeting($0, host) })),
-                        defaultDescription: "On",
-                        isModified: { showGreeting(host) != true },
-                        reset: { setShowGreeting(true, host) }),
-                    // The escape hatch: anything that isn't a toggle/select/
-                    // slider/text field can still be indexed and found by
-                    // wrapping your existing view in `.custom`.
-                    SettingsField(
-                        path: general.appending("advanced"),
-                        label: "Advanced",
-                        help: "The plugin's own settings pane.",
-                        keywords: ["advanced", "custom"],
-                        kind: .custom(makeSettingsView(host: host)))
-                ])
+                SettingsGroup(
+                    path: general, title: "General",
+                    fields: [
+                        // A real, declared field: shows up in search and gets
+                        // the shared toggle UI for free.
+                        SettingsField(
+                            path: general.appending("greeting"),
+                            label: "Show greeting",
+                            help: "Show the \"Hello from My Plugin\" banner.",
+                            keywords: ["greeting", "hello", "banner"],
+                            kind: .toggle(
+                                Binding(
+                                    get: { showGreeting(host) },
+                                    set: { setShowGreeting($0, host) })),
+                            defaultDescription: "On",
+                            isModified: { showGreeting(host) != true },
+                            reset: { setShowGreeting(true, host) }),
+                        // The escape hatch: anything that isn't a toggle/select/
+                        // slider/text field can still be indexed and found by
+                        // wrapping your existing view in `.custom`.
+                        SettingsField(
+                            path: general.appending("advanced"),
+                            label: "Advanced",
+                            help: "The plugin's own settings pane.",
+                            keywords: ["advanced", "custom"],
+                            kind: .custom(makeSettingsView(host: host))),
+                    ])
             ],
             appID: id)
     }
@@ -70,7 +73,7 @@ struct MyApp: AinkradApp {
 
     private static func showGreeting(_ host: HostServices) -> Bool {
         guard let data = host.documents.data(forKey: settingsKey),
-              let doc = try? JSONDecoder().decode(SettingsDocument.self, from: data)
+            let doc = try? JSONDecoder().decode(SettingsDocument.self, from: data)
         else { return true }
         return doc.showGreeting
     }
@@ -78,7 +81,8 @@ struct MyApp: AinkradApp {
     private static func setShowGreeting(_ value: Bool, _ host: HostServices) {
         var doc = SettingsDocument()
         if let data = host.documents.data(forKey: settingsKey),
-           let existing = try? JSONDecoder().decode(SettingsDocument.self, from: data) {
+            let existing = try? JSONDecoder().decode(SettingsDocument.self, from: data)
+        {
             doc = existing
         }
         doc.showGreeting = value
