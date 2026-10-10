@@ -19,7 +19,8 @@ packages:
     # that copy does not define and dies at `Bundle.load()`. This matches the
     # host's pin exactly: the settings-catalog merge, which is what
     # `settingsCatalog(host:)` in Sources/TemplateFeature/PluginApp.swift needs.
-    revision: 2f0bb8ffb982019ba93b4194f9ca7fa541fdd808
+    # aa3fc95: Glass Native kit (#96–#107).
+    revision: aa3fc955d523a9ec940626bddeeabd927c587737
 targets:
   TemplateFeature:
     type: library.static
